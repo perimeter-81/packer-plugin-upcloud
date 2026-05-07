@@ -5,7 +5,7 @@ on:
       - 'v*'
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.ACTIONS_RUNNER }}
     steps:
       - name: Checkout
         uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
@@ -38,3 +38,11 @@ jobs:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_VERSION: ${{ steps.plugin_describe.outputs.api_version }}
+
+      - name: Push metrics
+        if: always()
+        continue-on-error: true
+        uses: perimeter-81/actions/actions/monitoring/push_metrics@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
