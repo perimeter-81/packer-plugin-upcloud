@@ -9,8 +9,13 @@ jobs:
       matrix:
         go-version: [1.16.x]
         os: ["${{ vars.ACTIONS_RUNNER }}", macos-latest, windows-latest]
+        include:
+          - os: windows-latest
+            runner:
+              - codebuild-devops-windows-large-runner-${{ github.run_id }}-${{ github.run_attempt }}
+              - buildspec-override:true
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
 
     steps:
     - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
