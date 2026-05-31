@@ -6,7 +6,6 @@ jobs:
   test:
 
     strategy:
-      fail-fast: false
       matrix:
         go-version: [1.16.x]
         os: ["${{ vars.ACTIONS_RUNNER }}", macos-latest, windows-latest]
