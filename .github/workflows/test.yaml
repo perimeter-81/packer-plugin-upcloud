@@ -2,35 +2,47 @@ name: test
 
 on: [push]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   test:
 
     strategy:
       matrix:
         go-version: [1.16.x]
-        os: ["${{ vars.ACTIONS_RUNNER }}", macos-latest, windows-latest]
+        include:
+          - os: linux
+            runs-on: ${{ vars.ACTIONS_RUNNER }}
+          - os: macos
+            runs-on: macos-latest
+          - os: windows
+            runs-on:
+              - codebuild-devops-windows-large-runner-${{ github.run_id }}-${{ github.run_attempt }}
+              - buildspec-override:true
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
 
     steps:
     - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
-    
+
     - name: Setup
       uses: actions/setup-go@bfdd3570ce990073878bf10f6b2d79082de49492 # v2
       with:
         go-version: ${{ matrix.go-version }}
-    
+
     - name: Dependencies
       run: |
         go version
         go get -u golang.org/x/lint/golint
-        
+
     - name: Build
       run: make build
-      
+
     - name: Code Style
       run: make lint
-    
+
     - name: Test PR
       if: github.ref != 'refs/heads/master'
       run: make test
